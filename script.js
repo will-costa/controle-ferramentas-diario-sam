@@ -1,4 +1,4 @@
-// Novas chaves para armazenar os cadastros de itens e equipes
+// Chaves para armazenar os dados no LocalStorage
 const STORAGE_KEY = 'controleFerramentasDiario';
 const STORAGE_FERRAMENTAS = 'cadastroFerramentas';
 const STORAGE_EQUIPES = 'cadastroEquipes';
@@ -7,114 +7,72 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrega e exibe os dados existentes
     renderizarTabela(carregarRegistros());
     
-    // NOVO: Carrega e exibe as sugestões de cadastros
+    // Carrega e exibe as sugestões de cadastros
     renderizarCadastros('listaFerramentas', carregarCadastros(STORAGE_FERRAMENTAS));
     renderizarCadastros('listaEquipes', carregarCadastros(STORAGE_EQUIPES));
 
-    // 1. Lógica para registrar uma nova retirada
-    document.getElementById('registroForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const ferramentaNome = document.getElementById('ferramenta').value.trim();
-        const equipeNome = document.getElementById('equipe').value.trim();
-        
-        // NOVO: Adiciona a ferramenta e a equipe aos seus cadastros
-        adicionarCadastro(STORAGE_FERRAMENTAS, ferramentaNome);
-        adicionarCadastro(STORAGE_EQUIPES, equipeNome);
-
-        const novoRegistro = {
-            id: Date.now(),
-            pessoa: document.getElementById('pessoa').value.trim(),
-            ferramenta: ferramentaNome,
-            equipe: equipeNome,
-            quantidade: parseInt(document.getElementById('quantidade').value),
-            dataRetirada: new Date().toLocaleString('pt-BR'),
-            devolvida: false
-        };
-
-        const registros = carregarRegistros();
-        registros.push(novoRegistro);
-        salvarRegistros(registros);
-        
-        aplicarFiltrosEPesquisa();
-
-        // Limpar o formulário após o envio, exceto os campos de quantidade (mantém 1)
-        document.getElementById('pessoa').value = '';
-        document.getElementById('ferramenta').value = '';
-        document.getElementById('equipe').value = '';
-    });
-
-    // 2. Lógica para limpar todos os registros
-    document.getElementById('limparRegistros').addEventListener('click', function() {
-        if (confirm('Tem certeza que deseja limpar TODOS os registros? Esta ação não pode ser desfeita. Use isso ao final do dia.')) {
-            salvarRegistros([]); 
-            renderizarTabela([]);
-            // Você pode optar por limpar ou não os cadastros aqui. 
-            // Vou manter eles, mas você pode remover se quiser um "reset total" diário.
-            alert('Registros diários limpos com sucesso!');
-        }
-    });
-
-    // 3. Lógica para marcar como devolvido
-    document.getElementById('tabelaControle').addEventListener('click', function(e) {
-        if (e.target.classList.contains('btn-devolver')) {
-            const id = parseInt(e.target.dataset.id);
-            marcarComoDevolvido(id);
-        }
-    });
-
-    // 4. Eventos de Filtro e Pesquisa
-    const filtroStatus = document.getElementById('filtroStatus');
-    const campoBusca = document.getElementById('campoBusca');
-
-    filtroStatus.addEventListener('change', aplicarFiltrosEPesquisa);
-    campoBusca.addEventListener('input', aplicarFiltrosEPesquisa);
+    // Event Listeners (Ouvintes de Eventos)
+    document.getElementById('registroForm').addEventListener('submit', handleRegistroFormSubmit);
+    document.getElementById('limparRegistros').addEventListener('click', handleLimparRegistros);
+    document.getElementById('tabelaControle').addEventListener('click', handleTabelaAcoes);
+    document.getElementById('filtroStatus').addEventListener('change', aplicarFiltrosEPesquisa);
+    document.getElementById('campoBusca').addEventListener('input', aplicarFiltrosEPesquisa);
+    document.getElementById('exportarExcel').addEventListener('click', exportarParaExcel);
+    document.getElementById('exportarPDF').addEventListener('click', exportarParaPDF);
 });
 
 
-/**
- * Funções de CADASTRO (Ferramentas e Equipes)
- */
+// --- HANDLERS DE EVENTOS ---
 
-function carregarCadastros(chave) {
-    const dados = localStorage.getItem(chave);
-    // Retorna um array de strings, em ordem alfabética, ou um array vazio
-    return dados ? JSON.parse(dados).sort() : [];
+function handleRegistroFormSubmit(e) {
+    e.preventDefault();
+    
+    const ferramentaNome = document.getElementById('ferramenta').value.trim();
+    const equipeNome = document.getElementById('equipe').value.trim();
+    
+    // Adiciona a ferramenta e a equipe aos seus cadastros
+    adicionarCadastro(STORAGE_FERRAMENTAS, ferramentaNome);
+    adicionarCadastro(STORAGE_EQUIPES, equipeNome);
+
+    const novoRegistro = {
+        id: Date.now(),
+        pessoa: document.getElementById('pessoa').value.trim(),
+        ferramenta: ferramentaNome,
+        equipe: equipeNome,
+        quantidade: parseInt(document.getElementById('quantidade').value),
+        dataRetirada: new Date().toLocaleString('pt-BR'),
+        devolvida: false
+    };
+
+    const registros = carregarRegistros();
+    registros.push(novoRegistro);
+    salvarRegistros(registros);
+    
+    aplicarFiltrosEPesquisa();
+
+    // Limpar campos
+    document.getElementById('pessoa').value = '';
+    document.getElementById('ferramenta').value = '';
+    document.getElementById('equipe').value = '';
 }
 
-function salvarCadastros(chave, lista) {
-    localStorage.setItem(chave, JSON.stringify(lista));
-}
-
-function adicionarCadastro(chave, valor) {
-    const valorCapitalizado = valor.charAt(0).toUpperCase() + valor.slice(1).toLowerCase(); // Padroniza a capitalização
-    
-    let lista = carregarCadastros(chave);
-    
-    // Verifica se o item já existe para evitar duplicatas
-    if (valorCapitalizado && !lista.includes(valorCapitalizado)) {
-        lista.push(valorCapitalizado);
-        lista.sort(); // Mantém em ordem alfabética
-        salvarCadastros(chave, lista);
-        renderizarCadastros(chave === STORAGE_FERRAMENTAS ? 'listaFerramentas' : 'listaEquipes', lista);
+function handleLimparRegistros() {
+    if (confirm('Tem certeza que deseja limpar TODOS os registros? Esta ação não pode ser desfeita. Use isso ao final do dia.')) {
+        salvarRegistros([]);
+        renderizarTabela([]);
+        alert('Registros diários limpos com sucesso!');
     }
 }
 
-function renderizarCadastros(datalistId, cadastros) {
-    const datalist = document.getElementById(datalistId);
-    datalist.innerHTML = ''; // Limpa as opções existentes
-    
-    cadastros.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        datalist.appendChild(option);
-    });
+function handleTabelaAcoes(e) {
+    if (e.target.classList.contains('btn-devolver')) {
+        const id = parseInt(e.target.dataset.id);
+        marcarComoDevolvido(id);
+    }
 }
 
 
-/**
- * Funções de ESTOQUE (Registros Diários) - Sem grandes mudanças
- */
+// --- FUNÇÕES DE ARMAZENAMENTO E CADASTRO ---
 
 function carregarRegistros() {
     const dados = localStorage.getItem(STORAGE_KEY);
@@ -123,6 +81,39 @@ function carregarRegistros() {
 
 function salvarRegistros(registros) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
+}
+
+function carregarCadastros(chave) {
+    const dados = localStorage.getItem(chave);
+    return dados ? JSON.parse(dados).sort() : [];
+}
+
+function salvarCadastros(chave, lista) {
+    localStorage.setItem(chave, JSON.stringify(lista));
+}
+
+function adicionarCadastro(chave, valor) {
+    const valorCapitalizado = valor.charAt(0).toUpperCase() + valor.slice(1).toLowerCase();
+    
+    let lista = carregarCadastros(chave);
+    
+    if (valorCapitalizado && !lista.includes(valorCapitalizado)) {
+        lista.push(valorCapitalizado);
+        lista.sort();
+        salvarCadastros(chave, lista);
+        renderizarCadastros(chave === STORAGE_FERRAMENTAS ? 'listaFerramentas' : 'listaEquipes', lista);
+    }
+}
+
+function renderizarCadastros(datalistId, cadastros) {
+    const datalist = document.getElementById(datalistId);
+    datalist.innerHTML = '';
+    
+    cadastros.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        datalist.appendChild(option);
+    });
 }
 
 function marcarComoDevolvido(id) {
@@ -137,6 +128,9 @@ function marcarComoDevolvido(id) {
         aplicarFiltrosEPesquisa(); 
     }
 }
+
+
+// --- FUNÇÕES DE FILTRO E VISUALIZAÇÃO ---
 
 function aplicarFiltrosEPesquisa() {
     let registros = carregarRegistros();
@@ -160,7 +154,6 @@ function aplicarFiltrosEPesquisa() {
         );
     }
 
-    // 3. Renderizar o resultado filtrado
     renderizarTabela(registros);
 }
 
@@ -173,6 +166,7 @@ function renderizarTabela(registros) {
         return;
     }
 
+    // Ordena: não devolvidos primeiro
     registros.sort((a, b) => (a.devolvida === b.devolvida) ? 0 : a.devolvida ? 1 : -1);
 
     registros.forEach(registro => {
@@ -184,7 +178,6 @@ function renderizarTabela(registros) {
             ? 'Devolvido' 
             : `<button class="btn-devolver" data-id="${registro.id}">Devolver</button>`;
 
-        // ATENÇÃO: Adicione os data-labels para melhorar a visualização em telas pequenas (se você usar o CSS responsivo)
         tr.innerHTML = `
             <td data-label="Pessoa">${registro.pessoa}</td>
             <td data-label="Ferramenta">${registro.ferramenta}</td>
@@ -197,4 +190,84 @@ function renderizarTabela(registros) {
 
         tbody.appendChild(tr);
     });
+}
+
+
+// --- FUNÇÕES DE EXPORTAÇÃO (PDF e Excel) ---
+
+function prepararDadosParaExportacao() {
+    // Carrega os registros ATUAIS da tela (com filtros aplicados)
+    let registros = carregarRegistros();
+    
+    const status = document.getElementById('filtroStatus').value;
+    const termoBusca = document.getElementById('campoBusca').value.toLowerCase();
+    
+    // Aplica os filtros novamente (para garantir que só o visível seja exportado)
+    if (status === 'pendentes') {
+        registros = registros.filter(r => r.devolvida === false);
+    } else if (status === 'devolvidas') {
+        registros = registros.filter(r => r.devolvida === true);
+    }
+    if (termoBusca) {
+        registros = registros.filter(r => 
+            r.pessoa.toLowerCase().includes(termoBusca) || r.ferramenta.toLowerCase().includes(termoBusca) || r.equipe.toLowerCase().includes(termoBusca)
+        );
+    }
+    
+    // Mapeamos para o formato de array
+    const corpoTabela = registros.map(registro => [
+        registro.pessoa,
+        registro.ferramenta,
+        registro.equipe,
+        registro.quantidade,
+        registro.dataRetirada,
+        registro.devolvida ? `Sim (${registro.dataDevolucao.split(' ')[1]})` : 'Não'
+    ]);
+
+    const cabecalho = ['Pessoa', 'Ferramenta', 'Equipe', 'Qtd', 'Retirada', 'Status/Devolução'];
+
+    return { cabecalho, corpoTabela };
+}
+
+function exportarParaExcel() {
+    const { cabecalho, corpoTabela } = prepararDadosParaExportacao();
+    
+    // Converte para CSV (separado por ponto e vírgula)
+    let csv = [
+        cabecalho.join(';'),
+        ...corpoTabela.map(linha => linha.join(';'))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const nomeArquivo = `Controle_Ferramentas_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '_')}.csv`;
+    
+    // saveAs é da biblioteca FileSaver
+    saveAs(blob, nomeArquivo);
+}
+
+function exportarParaPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'pt', 'a4'); // Paisagem (A4)
+    
+    const { cabecalho, corpoTabela } = prepararDadosParaExportacao();
+
+    doc.setFontSize(16);
+    doc.text("Relatório de Controle de Ferramentas", 40, 40);
+
+    doc.autoTable({
+        startY: 60,
+        head: [cabecalho],
+        body: corpoTabela,
+        theme: 'striped',
+        styles: { 
+            fontSize: 10,
+        },
+        headStyles: { 
+            fillColor: [51, 78, 104], 
+            textColor: 255 
+        }
+    });
+
+    const nomeArquivo = `Relatorio_Ferramentas_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '_')}.pdf`;
+    doc.save(nomeArquivo);
 }
