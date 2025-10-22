@@ -4,34 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle Diário de Ferramentas</title>
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <h1>Controle Diário de Ferramentas</h1>
 
-   <div class="form-container">
-    <h2>Registrar Retirada</h2>
-    <form id="registroForm">
-        <label for="pessoa">Nome da Pessoa:</label>
-        <input type="text" id="pessoa" required>
+    <div class="form-container">
+        <h2>Registrar Retirada</h2>
+        <form id="registroForm">
+            <label for="pessoa">Nome da Pessoa:</label>
+            <input type="text" id="pessoa" required>
 
-        <label for="ferramenta">Ferramenta:</label>
-        <input type="text" id="ferramenta" list="listaFerramentas" required>
-        <datalist id="listaFerramentas">
-            </datalist>
+            <label for="ferramenta">Ferramenta:</label>
+            <input type="text" id="ferramenta" list="listaFerramentas" required>
+            <datalist id="listaFerramentas">
+                </datalist>
 
-        <label for="equipe">Equipe:</label>
-        <input type="text" id="equipe" list="listaEquipes" required>
-        <datalist id="listaEquipes">
-            </datalist>
+            <label for="equipe">Equipe:</label>
+            <input type="text" id="equipe" list="listaEquipes" required>
+            <datalist id="listaEquipes">
+                </datalist>
 
-        <label for="quantidade">Quantidade:</label>
-        <input type="number" id="quantidade" min="1" value="1" required>
+            <label for="quantidade">Quantidade:</label>
+            <input type="number" id="quantidade" min="1" value="1" required>
 
-        <button type="submit">Registrar Saída</button>
-    </form>
-</div>
+            <button type="submit">Registrar Saída</button>
+        </form>
+    </div>
 
     <div class="list-container">
         <h2>Ferramentas em Uso</h2>
@@ -47,6 +48,7 @@
             <label for="campoBusca">Buscar (Pessoa/Ferramenta/Equipe):</label>
             <input type="text" id="campoBusca" placeholder="Digite para buscar...">
         </div>
+
         <table id="tabelaControle">
             <thead>
                 <tr>
@@ -62,9 +64,19 @@
             <tbody>
                 </tbody>
         </table>
+        
+        <div class="export-buttons">
+            <button id="exportarExcel" class="btn-export">Exportar para Excel (CSV)</button>
+            <button id="exportarPDF" class="btn-export">Exportar para PDF</button>
+        </div>
 
         <button id="limparRegistros">Limpar Registros (Fim do Dia)</button>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <script src="script.js"></script>
 </body>
