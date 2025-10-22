@@ -1,0 +1,241 @@
+/* Google Fonts - Importa uma fonte moderna e limpa (Inter) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* --- Estilos Gerais (Reset e Tipografia) --- */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f4f8; /* Fundo cinza claro suave */
+    color: #334e68; /* Cor de texto principal (azul escuro) */
+    padding: 40px;
+    margin: 0;
+}
+
+h1 {
+    color: #102a43; /* Título principal mais escuro */
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+h2 {
+    color: #334e68;
+    border-bottom: 2px solid #e1e9f0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* --- Cartões e Containers --- */
+.form-container, .list-container {
+    background-color: #ffffff;
+    padding: 30px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra suave e moderna */
+    border: 1px solid #e1e9f0;
+}
+
+/* --- Formulário e Inputs --- */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+input[type="text"], 
+input[type="number"],
+.filtros select {
+    width: calc(100% - 20px); /* Ajusta para padding */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #cdd5df;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+input:focus, .filtros select:focus {
+    border-color: #4a67ff; /* Cor de foco vibrante (azul) */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 103, 255, 0.2);
+}
+
+/* --- Botões --- */
+button {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+/* Botão principal (Registrar Saída) */
+button[type="submit"] {
+    background-color: #3cb46e; /* Verde profissional */
+    color: white;
+    width: 100%;
+    margin-top: 20px;
+}
+
+button[type="submit"]:hover {
+    background-color: #349c61;
+    transform: translateY(-1px);
+}
+
+/* Botão de Devolver */
+.btn-devolver {
+    background-color: #4a67ff; /* Azul para ação positiva */
+    color: white;
+    padding: 8px 12px;
+}
+
+.btn-devolver:hover {
+    background-color: #3a53d6;
+}
+
+/* Botão de Limpar Registros (Alerta/Perigo) */
+#limparRegistros {
+    background-color: #e54c4c; /* Vermelho para ação destrutiva */
+    color: white;
+    margin-top: 20px;
+    float: right;
+}
+
+#limparRegistros:hover {
+    background-color: #c73c3c;
+}
+
+/* --- Filtros e Pesquisa --- */
+.filtros {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #e1e9f0;
+    border-radius: 8px;
+    background-color: #f7f9fc; /* Fundo suave para o painel de filtros */
+}
+
+.filtros label {
+    font-weight: 600;
+    margin: 0;
+}
+
+.filtros input[type="text"] {
+    width: 280px; /* Largura um pouco maior para a busca */
+    margin: 0;
+}
+
+/* --- Tabela de Controle --- */
+table {
+    width: 100%;
+    border-collapse: separate; /* Permite bordas arredondadas nos cantos da tabela */
+    border-spacing: 0;
+    margin-top: 15px;
+}
+
+thead th {
+    background-color: #e1e9f0;
+    color: #334e68;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid #cdd5df;
+}
+
+/* Estilos para cantos da tabela */
+thead tr:first-child th:first-child { border-top-left-radius: 8px; }
+thead tr:first-child th:last-child { border-top-right-radius: 8px; }
+
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e1e9f0;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background-color: #f0f4f8; /* Realce ao passar o mouse */
+}
+
+/* Estilos de Status Visual */
+.nao-devolvida {
+    background-color: #fff7f7; /* Fundo suavemente vermelho para pendentes */
+    border-left: 5px solid #e54c4c; /* Borda lateral vermelha de destaque */
+}
+
+.devolvida {
+    background-color: #f2fff7; /* Fundo suavemente verde para devolvidas */
+    color: #528c6e; /* Texto mais suave */
+}
+
+.devolvida td {
+    /* Diminui a opacidade e coloca em itálico para indicar item finalizado */
+    opacity: 0.8; 
+    font-style: italic;
+}
+
+/* Responsividade básica para telas menores */
+@media (max-width: 800px) {
+    body {
+        padding: 20px;
+    }
+
+    .filtros {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filtros input[type="text"], 
+    .filtros select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
+    
+    td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+    }
+    
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    /* Ajuste para o botão de limpar na responsividade */
+    #limparRegistros {
+        width: 100%;
+        float: none;
+    }
+}
